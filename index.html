@@ -39,6 +39,11 @@
         function createFileContainer(fileResult,fileType,mimeType){
             if(fileType === 'image'){
                 const img = new Image()
+                status.innerText = 'LOADING - buffering image'
+                const listener = img.addEventListener('load',()=>{
+                    status.innerText = 'DONE - image buffered'
+                    img.removeEventListener("load", listener,false)
+                })
                 img.src = fileResult
                 document.body.append(img)
             }else if(fileType === 'video'){
