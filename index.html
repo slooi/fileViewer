@@ -5,19 +5,28 @@
     <meta charset="UTF-8" />
     <title>Simple Video Viewer</title>
     <style>
-        *{
-            color:rgb(189, 189, 189);
+        *, body{
+            margin:0px;
+            padding:0;
+            width: 98vw;
+            overflow-x: hidden;
+        }
+        #statusParent{
+            margin:1rem;
         }
         *{
+            color:rgb(189, 189, 189);
             background-color: rgb(65, 65, 65);
         }
     </style>
 </head>
 <body>
-    <p>Status: <span id="status">IDLE - drag files onto the screen to load them</span></p>
+    <p id="statusParent">Status: <span id="status">IDLE - drag files onto the screen to load them</span></p>
 
+    <p id="container"></p>
     <script>
         const status = document.getElementById('status')
+        const container = document.getElementById('container')
 
         const fileReader = new FileReader()
         fileReader.onload = function(){
@@ -45,7 +54,7 @@
                     img.removeEventListener("load", listener,false)
                 })
                 img.src = fileResult
-                document.body.append(img)
+                container.append(img)
             }else if(fileType === 'video'){
                 const vid = document.createElement('video')
                 status.innerText = 'LOADING - buffering video'
@@ -55,7 +64,7 @@
                 })
                 vid.controls = true
                 vid.src = fileResult
-                document.body.append(vid)
+                container.append(vid)
             }else{
                 alert(`ERROR: ${fileType} not supported.`)
             }
