@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Simple Video Viewer</title>
+    <style>
+        *{
+            color:rgb(189, 189, 189);
+        }
+        *{
+            background-color: rgb(65, 65, 65);
+        }
+    </style>
+</head>
+<body>
+    <p>Status: <span id="status">IDLE - drag files onto the screen to load them</span></p>
+
+    <script>
+        const status = document.getElementById('status')
+
+        const fileReader = new FileReader()
+        fileReader.onload = function(){
+            console.log(fileReader.result)
+            const fileResult = fileReader.result
+            const types = findTypes(fileResult)
+            const fileType = types[0]
+            const mimeType = types[1]
+            console.log('types',types)
+            
+            status.innerText = 'LOADING - file read'
+            createFileContainer(fileResult,fileType,mimeType)
+        }
+        
+        fileReader.onprogress = function(){
+            status.innerText = 'LOADING - reading file'
+            console.log('LOADING - reading file')
+        }
+        function createFileContainer(fileResult,fileType,mimeType){
+            if(fileType === 'image'){
+                const img = new Image()
+                img.src = fileResult
+                document.body.append(img)
+            }else if(fileType === 'video'){
+                const vid = document.createElement('video')
+                status.innerText = 'LOADING - buffering video'
+                const listener = vid.addEventListener('canplay',()=>{
+                    status.innerText = 'DONE - video buffered'
+                    vid.removeEventListener("canplay", listener,false)
+                })
+                vid.controls = true
+                vid.src = fileResult
+                document.body.append(vid)
+            }else{
+                alert(`ERROR: ${fileType} not supported.`)
+            }
+        }
+        function handleFiles(file){
+            fileReader.readAsDataURL(file)
+        }
+        function findTypes(fileResult){
+            // between : and ;
+            // or : ,
+            const start = fileResult.search(':')
+            const end1 = fileResult.search(';')
+            const end2 = fileResult.search(',')
+            const end = ( end1 !== -1 && end1 < end2 ) ? end1 : end2;
+            const mimeType = fileResult.substr(start+1,end-start-1)
+
+            const fileType = mimeType.substr(0,mimeType.search('/'))
+            return [fileType,mimeType]
+        }
+
+        window.addEventListener('dragover',e=>{
+            e.preventDefault()
+            e.stopPropagation()
+            // console.log(e)
+        })
+        window.addEventListener('drop',e=>{
+            e.preventDefault()
+            e.stopPropagation()
+            console.log(e.dataTransfer.files[0])
+            handleFiles(e.dataTransfer.files[0])
+        })
+
+    </script>
+</body>
+</html>
